@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Sentiment Analysis on Movie Reviews</h1>
+    <form action="/analyze" method="post">
+        <label for="movie_name">Enter Movie Name:</label>
+        <input type="text" id="movie_name" name="movie_name" required>
+        <button type="submit">Analyze</button>
+    </form>
+    {% if movie_name %}
+    <h2>Results for "{{ movie_name }}"</h2>
+    <p>Total Reviews Analyzed: {{ total_reviews }}</p>
+    <p>Positive Reviews: {{ positive_reviews }}</p>
+    <p>Negative Reviews: {{ negative_reviews }}</p>
+    {% elif message %}
+    <p>{{ message }}</p>
+    {% endif %}
+</body>
+</html>

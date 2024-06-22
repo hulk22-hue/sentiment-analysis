@@ -1,7 +1,8 @@
 import pandas as pd
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+import numpy as np
 import os
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
 
 def load_and_preprocess_data(file_path, maxlen=500, num_words=10000):
     train_df = pd.read_csv(os.path.join(file_path, 'train_reviews.csv'))
@@ -22,6 +23,11 @@ def load_and_preprocess_data(file_path, maxlen=500, num_words=10000):
     test_data = pad_sequences(test_sequences, maxlen=maxlen)
 
     return train_data, train_labels, test_data, test_labels, tokenizer
+
+def preprocess_text(reviews, tokenizer, maxlen=500):
+    sequences = tokenizer.texts_to_sequences(reviews)
+    padded_sequences = pad_sequences(sequences, maxlen=maxlen)
+    return padded_sequences
 
 def get_word_index(tokenizer):
     return tokenizer.word_index

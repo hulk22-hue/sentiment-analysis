@@ -1,3 +1,4 @@
+Flask
 numpy
 pandas
 tensorflow
@@ -5,3 +6,5 @@ keras
 matplotlib
 scikit-learn
 nltk
+requests
+beautifulsoup4
