@@ -2,9 +2,12 @@ import os
 from src.download_data import download_and_save_data
 from src.data_preprocessing import load_and_preprocess_data, preprocess_text, get_word_index
 from src.evaluate_model import load_model_and_tokenizer, predict_sentiments, evaluate_model, plot_roc
+from src.download_data import download_and_save_data
 
 if not os.path.exists('images'):
     os.makedirs('images')
+
+download_and_save_data('data')
 
 train_data, train_labels, test_data, test_labels, tokenizer = load_and_preprocess_data('data')
 
