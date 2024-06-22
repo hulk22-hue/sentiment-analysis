@@ -7,7 +7,7 @@ from src.download_data import download_and_save_data
 if not os.path.exists('images'):
     os.makedirs('images')
 
-download_and_save_data('data')
+# download_and_save_data('data')
 
 train_data, train_labels, test_data, test_labels, tokenizer = load_and_preprocess_data('data')
 
