@@ -102,10 +102,6 @@ dmypy.json
 # Heroku
 *.sqlite3
 
-# Ignore model and tokenizer files if not using sample model and tokenizer
-trained_model_LSTM.h5
-tokenizer.json
-
 # Ignore data files if generated dynamically
 data/
 
