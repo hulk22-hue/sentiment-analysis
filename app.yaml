@@ -1,10 +1,5 @@
-runtime: python310  # or python311 if supported
+runtime: python310
 
 handlers:
   - url: /.*
     script: auto
-
-deployment:
-  files:
-    app.py
-  timeout: 1800s  # Increase the timeout to 30 minutes
