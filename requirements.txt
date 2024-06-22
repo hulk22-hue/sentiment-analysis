@@ -1,7 +1,7 @@
 Flask
 numpy
 pandas
-tensorflow==2.12.0
+tensorflow==2.16.1
 keras
 matplotlib
 scikit-learn
