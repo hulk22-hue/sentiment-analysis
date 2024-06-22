@@ -28,3 +28,7 @@ def download_and_save_data(file_path):
     train_df.to_csv(os.path.join(file_path, 'train_reviews.csv'), index=False)
     test_df.to_csv(os.path.join(file_path, 'test_reviews.csv'), index=False)
     print(f"IMDb dataset downloaded and saved to {file_path}")
+
+
+if __name__=="__main__":
+    download_and_save_data('data')
