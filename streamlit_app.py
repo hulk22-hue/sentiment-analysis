@@ -25,9 +25,9 @@ def main():
                 st.write(f"Positive Reviews: {positive_reviews}")
                 st.write(f"Negative Reviews: {negative_reviews}")
                 
-                for review, sentiment, prob in zip(reviews, sentiments, predictions_prob):
-                    st.write(f"Review: {review}")
-                    st.write(f"Sentiment: {'Positive' if sentiment == 1 else 'Negative'}, Probability: {prob[0]}")
+                # for review, sentiment, prob in zip(reviews, sentiments, predictions_prob):
+                #     st.write(f"Review: {review}")
+                #     st.write(f"Sentiment: {'Positive' if sentiment == 1 else 'Negative'}, Probability: {prob[0]}")
         else:
             st.error("Please enter a movie name.")
             
