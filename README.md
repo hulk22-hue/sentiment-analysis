@@ -1,6 +1,6 @@
 # Sentiment Analysis on Movie Reviews
 
-This project is a Flask web application for performing sentiment analysis on movie reviews using a Recurrent Neural Network (RNN). The application allows users to enter the name of a movie, fetches reviews from IMDb, and analyzes the sentiment of those reviews to provide a summary of positive and negative sentiments.
+This project aims to perform sentiment analysis on movie reviews using a Recurrent Neural Network (RNN). The app is built using Streamlit and deployed on Streamlit Sharing. The application allows users to enter the name of a movie, fetches reviews from IMDb, processes them, and predicts whether the sentiment is positive or negative.
 
 ## Features
 
