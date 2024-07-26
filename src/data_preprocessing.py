@@ -1,37 +1,57 @@
-import pandas as pd
-import numpy as np
+# src/data_preprocessing.py
 import os
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.preprocessing.text import Tokenizer
+import pandas as pd
+import tensorflow as tf
+from transformers import BertTokenizer
 
-def load_and_preprocess_data(file_path, maxlen=500, num_words=10000):
+def load_and_preprocess_data(file_path, max_length=128):
+    """Load and preprocess the IMDb dataset."""
     train_df = pd.read_csv(os.path.join(file_path, 'train_reviews.csv'))
     test_df = pd.read_csv(os.path.join(file_path, 'test_reviews.csv'))
 
-    train_reviews = train_df['review'].values
+    train_texts = train_df['review'].values
     train_labels = train_df['label'].values
-    test_reviews = test_df['review'].values
+    test_texts = test_df['review'].values
     test_labels = test_df['label'].values
 
-    tokenizer = Tokenizer(num_words=num_words)
-    tokenizer.fit_on_texts(train_reviews)
-    
-    train_sequences = tokenizer.texts_to_sequences(train_reviews)
-    test_sequences = tokenizer.texts_to_sequences(test_reviews)
-    
-    train_data = pad_sequences(train_sequences, maxlen=maxlen)
-    test_data = pad_sequences(test_sequences, maxlen=maxlen)
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-    return train_data, train_labels, test_data, test_labels, tokenizer
+    train_encodings = tokenizer(
+        list(train_texts), 
+        max_length=max_length, 
+        padding=True, 
+        truncation=True, 
+        return_tensors='tf'
+    )
 
-def preprocess_text(reviews, tokenizer, maxlen=500):
-    sequences = tokenizer.texts_to_sequences(reviews)
-    padded_sequences = pad_sequences(sequences, maxlen=maxlen)
-    return padded_sequences
+    test_encodings = tokenizer(
+        list(test_texts), 
+        max_length=max_length, 
+        padding=True, 
+        truncation=True, 
+        return_tensors='tf'
+    )
 
-def get_word_index(tokenizer):
-    return tokenizer.word_index
+    train_dataset = tf.data.Dataset.from_tensor_slices((
+        dict(train_encodings),
+        train_labels
+    ))
 
-def decode_review(text, tokenizer):
-    reverse_word_index = {value: key for key, value in tokenizer.word_index.items()}
-    return ' '.join([reverse_word_index.get(i, '?') for i in text])
+    test_dataset = tf.data.Dataset.from_tensor_slices((
+        dict(test_encodings),
+        test_labels
+    ))
+
+    return train_dataset, test_dataset, tokenizer
+
+def preprocess_text(reviews, tokenizer, max_length=128):
+    """Tokenize the reviews using BERT tokenizer."""
+    encodings = tokenizer(
+        list(reviews), 
+        max_length=max_length, 
+        padding=True, 
+        truncation=True, 
+        return_tensors='tf'
+    )
+    return encodings
+

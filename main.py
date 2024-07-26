@@ -1,6 +1,6 @@
 import os
-from src.download_data import download_and_save_data
-from src.data_preprocessing import load_and_preprocess_data, preprocess_text, get_word_index
+import tensorflow as tf
+from src.data_preprocessing import load_and_preprocess_data, preprocess_text
 from src.evaluate_model import load_model_and_tokenizer, predict_sentiments, evaluate_model, plot_roc
 from src.download_data import download_and_save_data
 
@@ -9,24 +9,40 @@ if not os.path.exists('images'):
 
 # download_and_save_data('data')
 
-train_data, train_labels, test_data, test_labels, tokenizer = load_and_preprocess_data('data')
+file_path = 'data'
+train_dataset, test_dataset, tokenizer = load_and_preprocess_data(file_path)
 
-word_index = get_word_index(tokenizer)
-reverse_word_index = {value: key for key, value in word_index.items()}
-test_reviews = [' '.join([reverse_word_index.get(i, '?') for i in review]) for review in test_data]
+test_reviews = [" ".join([str(token) for token in x[0]['input_ids'].numpy().tolist()]) for x in test_dataset]
+test_labels = [x[1].numpy() for x in test_dataset]
 
-# test_reviews = test_data.tolist()
+model_path = 'fine_tuned_bert'
+model, tokenizer = load_model_and_tokenizer(model_path, model_path)
 
-model, tokenizer = load_model_and_tokenizer('trained_model_LSTM.h5', 'tokenizer.json')
+# _, predictions_prob = predict_sentiments(test_reviews, model, tokenizer)
 
-_, predictions_prob = predict_sentiments(test_reviews, model, tokenizer)
+batch_size = 16  
+num_batches = len(test_reviews) // batch_size + 1
 
-accuracy, precision, recall, f1, predictions_prob = evaluate_model(model, test_data, test_labels)
+all_predictions = []
+all_predictions_prob = []
 
-print(f"Model Type: LSTM")
+for i in range(num_batches):
+    batch_reviews = test_reviews[i * batch_size:(i + 1) * batch_size]
+    if not batch_reviews:
+        continue
+    sentiments, predictions_prob = predict_sentiments(batch_reviews, model, tokenizer)
+    all_predictions.extend(sentiments)
+    all_predictions_prob.extend(predictions_prob)
+
+all_predictions_prob = tf.convert_to_tensor(all_predictions_prob)
+all_predictions_prob = all_predictions_prob.numpy()
+
+accuracy, precision, recall, f1, _ = evaluate_model(model, tokenizer, test_dataset, test_labels)
+
+print(f"Model Type: BERT")
 print(f"Accuracy: {accuracy}")
 print(f"Precision: {precision}")
 print(f"Recall: {recall}")
 print(f"F1 Score: {f1}")
 
-plot_roc(test_labels, predictions_prob, "LSTM")
+plot_roc(test_labels, predictions_prob, "BERT")

@@ -1,34 +1,49 @@
-import numpy as np
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, SimpleRNN, LSTM, GRU, Dense, Dropout
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.preprocessing.text import Tokenizer
+import tensorflow as tf
+from transformers import TFBertForSequenceClassification, BertTokenizer
 from src.data_preprocessing import load_and_preprocess_data
-import json
+import os
 
-train_data, train_labels, test_data, test_labels, tokenizer = load_and_preprocess_data('data', maxlen=500, num_words=10000)
-
-def build_rnn_model(input_shape, vocab_size, model_type='SimpleRNN'):
-    model = Sequential()
-    model.add(Embedding(vocab_size, 32, input_length=input_shape[1]))
-    
-    if model_type == 'SimpleRNN':
-        model.add(SimpleRNN(32))
-    elif model_type == 'LSTM':
-        model.add(LSTM(32))
-    elif model_type == 'GRU':
-        model.add(GRU(32))
-    
-    model.add(Dense(1, activation='sigmoid'))
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+def create_model():
+    """Load the BERT model for sequence classification."""
+    model = TFBertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=2)
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=3e-5),
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
     return model
 
-model_type = 'LSTM'  # Choose 'SimpleRNN', 'LSTM', or 'GRU'
-model = build_rnn_model(train_data.shape, vocab_size=10000, model_type=model_type)
-model.fit(train_data, train_labels, epochs=10, batch_size=64, validation_data=(test_data, test_labels))
+def train_model(model, train_dataset, test_dataset, batch_size=8, epochs=3):
+    """Train the BERT model."""
+    checkpoint_path = "training_checkpoints/cp-{epoch:04d}.ckpt"
+    checkpoint_dir = os.path.dirname(checkpoint_path)
 
-model.save(f'trained_model_{model_type}.h5')
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
+                                                     save_weights_only=True,
+                                                     verbose=1,
+                                                     save_freq='epoch')
 
-tokenizer_json = tokenizer.to_json()
-with open('tokenizer.json', 'w') as f:
-    json.dump(tokenizer_json, f)
+    history = model.fit(train_dataset.shuffle(10000).batch(batch_size),
+                        epochs=epochs,
+                        validation_data=test_dataset.batch(batch_size),
+                        callbacks=[cp_callback])
+    return history
+
+def save_model_and_tokenizer(model, tokenizer, save_directory):
+    """Save the trained model and tokenizer."""
+    model.save_pretrained(save_directory)
+    tokenizer.save_pretrained(save_directory)
+
+def main(file_path, save_directory, max_length=128, batch_size=8, epochs=3):
+    """Main function to load data, preprocess, train and save the BERT model."""
+
+    train_dataset, test_dataset, tokenizer = load_and_preprocess_data(file_path, max_length)
+
+    model = create_model()
+
+    train_model(model, train_dataset, test_dataset, batch_size, epochs)
+
+    save_model_and_tokenizer(model, tokenizer, save_directory)
+
+if __name__ == "__main__":
+    file_path = 'data'  
+    save_directory = 'fine_tuned_bert'  
+    main(file_path, save_directory)
