@@ -21,6 +21,7 @@ def main():
                 total_reviews = len(sentiments)
                 negative_reviews = total_reviews - positive_reviews
                 
+                st.write(movie_name)
                 st.write(f"Total Reviews: {total_reviews}")
                 st.write(f"Positive Reviews: {positive_reviews}")
                 st.write(f"Negative Reviews: {negative_reviews}")
