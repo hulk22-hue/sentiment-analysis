@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Ensure the buttons are styled and displayed properly */
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            margin: 0 auto;
+        }
+        input, button {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sentiment Analysis on Movie Reviews</h1>
+    <form action="/analyze" method="post">
+        <label for="movie_name">Enter Movie Name:</label>
+        <input type="text" id="movie_name" name="movie_name" required>
+        <button type="submit">Analyze</button>
+        <button type="reset" onclick="window.location.reload();">Reset</button>
+    </form>
+    {% if movie_name %}
+    <h2>Results for "{{ movie_name }}"</h2>
+    <p>Total Reviews Analyzed: {{ total_reviews }}</p>
+    <p>Positive Reviews: {{ positive_reviews }}</p>
+    <p>Negative Reviews: {{ negative_reviews }}</p>
+    {% elif message %}
+    <p>{{ message }}</p>
+    {% endif %}
+</body>
+</html>
